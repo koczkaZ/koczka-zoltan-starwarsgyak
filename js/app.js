@@ -1,5 +1,5 @@
 // ide deklaráljátok a függvényeket.
-var side = document.querySelector('.one-spaceship');
+
 /* Ez valamiért nem működik...:
 function ascendingOrderByCost2(data) {
   var i;
@@ -88,13 +88,13 @@ function objectWriter(arrayOfobjects) {
 }
 
 // Stringbe írja egy objektumokból álló tömb adatát.
-function sideObjectWriter(object) {
-  var output = '<div style="background-color:aliceblue">';
+function soloObjectWriter(object) {
+  var output = '<b>A keresés eredménye:</b> <br><br>';
   for (var k in object) {
     if (object.hasOwnProperty(k)) {
       output += `${[k]}: ${object[k]}<br>`;
     }
-  } output += '</div>'; return output;
+  } return output;
 }
 
 // Kitölti a kapott stringgel az area id-jű divet.
@@ -135,7 +135,7 @@ function getTotalPassengers(array) {
       totalPassengers += getInteger(array[i].passengers);
     }
   }
-  message = totalPassengers + ' Az összes hajó utasainak összesített száma';
+  message = totalPassengers + ' Az összes hajó utasainak összesített száma.';
   return message;
 }
 // A leghosszabb(lengthiness) hajó képének a neve
@@ -148,18 +148,40 @@ function getPicOfLongestShip(array) {
         longestShip = array[i];
       }
     }
-  } return ('A leghosszabb hajó képének a neve: ' + longestShip.image);
+  }  return ('A leghosszabb hajó képének a neve: ' + longestShip.image);
 }
 
-// Keresés (nem case sensitive). Első találatig megy az előzetesen modelnév szerint rendezett tömbben.
-function search(inputString, inputArr) {
-  var array = ascendingOrderByName(inputArr);
-  var input = inputString.toLowerCase();
-  for (var i = 0; i < array.length; i++) {
-    if (array[i].model.toLowerCase().indexOf(input) > -1) {
-      return array[i];
+function statWriter(array) {
+  var statDiv = document.createElement('DIV');
+  statDiv.className = 'statDiv';
+  statDiv.style.border = '3px solid black';
+  statDiv.style.position = 'absolute; bottom: 0';
+  statDiv.innerHTML = '<b>Statisztikák:</b> <br>' + getPicOfLongestShip(array) + '<br>'
+  + getTotalPassengers(array) + '<br>' + getMaxCargoCapacityShip(array) + '<br>' + getSoloShips(array);
+  var list = document.querySelector('.spaceship-list');
+  list.appendChild(statDiv);
+}
+
+
+// Keresés (nem case sensitive). Mivel a nyers tömbadatok a successAjaxban vannak, ezért ez a kereső
+// kiolvassa a kiírt divekből childNode-ok alapján. Először megvizsgálja, hogy a modelnév mutat-e egyezért a
+// search inputtal, és ha igen, bedobja egy tömbbe, úgy hogy mögé van csatolva az ID-je. A tömböt ABC-sorba
+// rendezi, és levágja az utolsó 2 karaktert, ami így megadja az ID-t a kiirató függvény paraméterér.
+function search() {
+  var input = document.getElementById('search-text').value.toLowerCase();
+  var divs = document.querySelectorAll('.ships');
+  let foundArray = [];
+  for (var i = 0; i < divs.length; i++) {
+    var foundId = divs[i].childNodes[0].substringData(3, divs[i].childNodes[0].length);
+    if (divs[i].childNodes[16].substringData(7, divs[i].childNodes[16].length).toLowerCase().search(input) > -0b1) {
+      foundArray.push(divs[i].childNodes[16].substringData(7, divs[i].childNodes[16].length) + foundId);
     }
-  } return alert('Ez a részlet nem található egyik modelnévben sem');
+  } if (foundArray.length) {
+    foundArray.sort();
+    foundId = (foundArray[0].substring(foundArray[0].length - 2, foundArray[0].length));
+    return makeDivOnSide(parseInt(foundId, 0o12));
+  }
+  return alert('Ez a részlet nem található egyik modelnévben sem.');
 }
 
 // Modelnévszerinti ABC-sorba rendezés.
@@ -177,11 +199,18 @@ function ascendingOrderByName(input) {
   } return input;
 }
 
+// Az eredetit nem módosítva átírja az inputtömb image-kulcsainak értékét, úgy, hogy az HTML számára olvasható
+// image-tag legyen
+
 function imageLinker(array) {
-  for (var i = 0; i < array.length; i++) {
-    array[i].image = `<br><img src=/img/${array[i].image} alt="A hajó képe nincs meg az adatbázisban.">`;
-  }
+  var result = JSON.parse(JSON.stringify(array));
+  for (var i = 0; i < result.length; i++) {
+    result[i].image = `<br><img src=/img/${result[i].image} alt="A hajó képe nincs meg az adatbázisban.">`;
+  } return result;
 }
+
+// Bármelyik hajós div-re kattintva divet készít oldalra, ha az még nem létezik (vagyis csak a 3 alap node van benne),
+// majd belemásolja a kattintott div tartalmát. Ha már van div, akkor csak kicseréli a tartalmat.
 
 function makeDivOnSide(idNo) {
   var side = document.querySelector('.one-spaceship');
@@ -219,20 +248,21 @@ function successAjax(xhttp) {
   // Innen lesz elérhető a JSON file tartalma, tehát az adatok amikkel dolgoznod kell
   var userDatas = JSON.parse(xhttp.responseText);
   // Innen lehet hívni.
-  console.log(ascendingOrderByCost(userDatas));
-  (imageLinker(userDatas));
-  // 2. feladat:
-  console.log(precisionDeleter(nullConsumableFinder(userDatas), userDatas));
+  function doIt() {
+    var searchBtn = document.querySelector('#search-button');
+    searchBtn.addEventListener('click', search);
+  }
+  doIt();
 
+  // 2. feladat:
+  ascendingOrderByCost(userDatas);
   // 3. feladat:
-  setNulltoUnknown(precisionDeleter(nullConsumableFinder(userDatas), userDatas));
   // 4. feladat:
-  divFiller(objectWriter(setNulltoUnknown(precisionDeleter(nullConsumableFinder(userDatas), userDatas))));
+  precisionDeleter(nullConsumableFinder(userDatas), userDatas);
+  setNulltoUnknown(userDatas);
+  divFiller(objectWriter(imageLinker(userDatas)));
   // 5. feladat:
-  console.log(getSoloShips(setNulltoUnknown(precisionDeleter(nullConsumableFinder(userDatas), userDatas))));
-  console.log(getMaxCargoCapacityShip(userDatas));
-  console.log(getTotalPassengers(userDatas));
-  console.log(getPicOfLongestShip(userDatas));
+  statWriter(userDatas);
   // 6. feladat:
 }
 getData('/json/spaceships.json', successAjax);
