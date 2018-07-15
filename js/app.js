@@ -141,6 +141,7 @@ function getPicOfLongestShip(array) {
   }  return ('A leghosszabb hajó képének a neve: ' + longestShip.image);
 }
 
+// Egy lentre helyezett divbe írja ki a kért statisztikát.
 function statWriter(array) {
   var statDiv = document.createElement('DIV');
   statDiv.className = 'statDiv';
@@ -153,7 +154,7 @@ function statWriter(array) {
 }
 
 
-// Keresés (nem case sensitive). Mivel a nyers tömbadatok a successAjaxban vannak, ezért ez a kereső
+// Keresés (nem case sensitive). Nem túl elegánsan  :) Mivel a nyers tömbadatok a successAjaxban vannak, ezért ez a kereső
 // kiolvassa a kiírt divekből childNode-ok alapján. Először megvizsgálja, hogy a modelnév mutat-e egyezést a
 // search inputtal, és ha igen, bedobja egy tömbbe, úgy hogy mögé van csatolva az ID-je. A tömböt ABC-sorba
 // rendezi, és levágja az utolsó 2 karaktert, ami így megadja az ID-t, a kiirató függvény paraméterét.
