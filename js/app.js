@@ -78,22 +78,12 @@ function setNulltoUnknown(array) {
 function objectWriter(arrayOfobjects) {
   var output = '';
   for (var i = 0; i < arrayOfobjects.length; i++) {
-    output += `<div class=ships id=${arrayOfobjects[i].id} onclick=makeDivOnSide(${arrayOfobjects[i].id})>`;
+    output += `<div class=ships id=${arrayOfobjects[i].id} style="background-color: aliceblue; width:300px; margin:  10px "onclick=makeDivOnSide(${arrayOfobjects[i].id})>`;
     for (var k in arrayOfobjects[i]) {
       if (arrayOfobjects[i].hasOwnProperty([k])) {
         output += `${[k]}: ${arrayOfobjects[i][k]}<br>`;
       }
     } output += '<br></div>';
-  } return output;
-}
-
-// Stringbe írja egy objektumokból álló tömb adatát.
-function soloObjectWriter(object) {
-  var output = '<b>A keresés eredménye:</b> <br><br>';
-  for (var k in object) {
-    if (object.hasOwnProperty(k)) {
-      output += `${[k]}: ${object[k]}<br>`;
-    }
   } return output;
 }
 
@@ -164,9 +154,9 @@ function statWriter(array) {
 
 
 // Keresés (nem case sensitive). Mivel a nyers tömbadatok a successAjaxban vannak, ezért ez a kereső
-// kiolvassa a kiírt divekből childNode-ok alapján. Először megvizsgálja, hogy a modelnév mutat-e egyezért a
+// kiolvassa a kiírt divekből childNode-ok alapján. Először megvizsgálja, hogy a modelnév mutat-e egyezést a
 // search inputtal, és ha igen, bedobja egy tömbbe, úgy hogy mögé van csatolva az ID-je. A tömböt ABC-sorba
-// rendezi, és levágja az utolsó 2 karaktert, ami így megadja az ID-t a kiirató függvény paraméterér.
+// rendezi, és levágja az utolsó 2 karaktert, ami így megadja az ID-t, a kiirató függvény paraméterét.
 function search() {
   var input = document.getElementById('search-text').value.toLowerCase();
   var divs = document.querySelectorAll('.ships');
@@ -183,29 +173,13 @@ function search() {
   }
   return alert('Ez a részlet nem található egyik modelnévben sem.');
 }
-
-// Modelnévszerinti ABC-sorba rendezés.
-function ascendingOrderByName(input) {
-  var i; var j; var end;
-  end = input.length;
-  while (end--) {
-    for (i = 0, j = 1; i < end; i++, j++) {
-      if (input[i].model.localeCompare(input[j].model) > 0) {
-        var temp = input[i];
-        input[i] = input[j];
-        input[j] = temp;
-      }
-    }
-  } return input;
-}
-
 // Az eredetit nem módosítva átírja az inputtömb image-kulcsainak értékét, úgy, hogy az HTML számára olvasható
 // image-tag legyen
 
 function imageLinker(array) {
   var result = JSON.parse(JSON.stringify(array));
   for (var i = 0; i < result.length; i++) {
-    result[i].image = `<br><img src=/img/${result[i].image} alt="A hajó képe nincs meg az adatbázisban.">`;
+    result[i].image = `<br><img src=/img/${result[i].image} alt="Could not find picture for ${result[i].model}.">`;
   } return result;
 }
 
@@ -225,13 +199,6 @@ function makeDivOnSide(idNo) {
     ;
   }
 }
-
-function findShipById(idNo, array) {
-  for (var i = 0; i < array.length; i++) {
-    if (array[i].id === idNo.toString()) return array[i];
-  }
-}
-
 
 function getData(url, callbackFunc) {
   var xhttp = new XMLHttpRequest();
